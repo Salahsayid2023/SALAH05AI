@@ -1,38 +1,43 @@
 "use client";
 
-import React from 'react';
-import { supabase } from './supabase';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://faatuljctwkrvzyphx.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhYXR1bGpjdHdza3J2enlqcGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzQ5NzEsImV4cCI6MjA5NTcxMDk3MX0.PrLeasAhK_zIv1igV-AsjxrHMLD3i-pkpwIlubdt2PA';
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const db = {
   getProjects: async () => {
     const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
     if (error) {
-      console.error('Error fetching projects:', error);
+      console.error('Supabase Error:', error);
       return [];
     }
     return data || [];
   },
   saveProjects: async (projects: any[]) => {
-    // Since we want to keep it simple for now, we'll overwrite/sync. 
-    // A more robust way would be individual UPSERTs.
-    const { error } = await supabase.from('projects').delete({}).then(() => {
-      return supabase.from('projects').insert(projects);
-    });
-    if (error) console.error('Error saving projects:', error);
+    // Simple overwrite: delete all and insert new ones
+    const { error: delError } = await supabase.from('projects').delete({ count: 'full' }); 
+    if (delError) console.error('Delete Error:', delError);
+    
+    const { error: insError } = await supabase.from('projects').insert(projects);
+    if (insError) console.error('Insert Error:', insError);
   },
   getProducts: async () => {
     const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
     if (error) {
-      console.error('Error fetching products:', error);
+      console.error('Supabase Error:', error);
       return [];
     }
     return data || [];
   },
   saveProducts: async (products: any[]) => {
-    const { error } = await supabase.from('products').delete({}).then(() => {
-      return supabase.from('products').insert(products);
-    });
-    if (error) console.error('Error saving products:', error);
+    const { error: delError } = await supabase.from('products').delete({ count: 'full' });
+    if (delError) console.error('Delete Error:', delError);
+    
+    const { error: insError } = await supabase.from('products').insert(products);
+    if (insError) console.error('Insert Error:', insError);
   },
   getSettings: async () => {
     const { data, error } = await supabase.from('settings').select('*').single();
@@ -50,6 +55,6 @@ export const db = {
   },
   saveSettings: async (settings: any) => {
     const { error } = await supabase.from('settings').upsert({ id: 1, ...settings });
-    if (error) console.error('Error saving settings:', error);
+    if (error) console.error('Savesettings Error:', error);
   }
 };
