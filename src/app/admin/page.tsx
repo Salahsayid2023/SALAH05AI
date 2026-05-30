@@ -33,11 +33,13 @@ export default function AdminDashboard() {
     footerText: ''
   });
 
-  const loadData = () => {
+  const loadData = async () => {
     if (activeTab === 'projects') {
-      setItems(db.getProjects());
+      const data = await db.getProjects();
+      setItems(data);
     } else if (activeTab === 'store') {
-      setItems(db.getProducts());
+      const data = await db.getProducts();
+      setItems(data);
     }
   };
 
