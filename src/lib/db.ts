@@ -1,45 +1,55 @@
-import { PROJECTS as DEFAULT_PROJECTS } from './../data/projects';
-import { STORE_PRODUCTS as DEFAULT_PRODUCTS } from './../data/store';
+"use client";
 
-// A simple LocalStorage-based DB to make the site dynamic immediately 
-// without needing complex API keys for the first demo.
+import React from 'react';
+import { supabase } from './supabase';
+
 export const db = {
-  getProjects: () => {
-    if (typeof window === 'undefined') return DEFAULT_PROJECTS;
-    const data = localStorage.getItem('salah_projects');
-    return data ? JSON.parse(data) : DEFAULT_PROJECTS;
+  getProjects: async () => {
+    const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error fetching projects:', error);
+      return [];
+    }
+    return data || [];
   },
-  saveProjects: (projects: any[]) => {
-    localStorage.setItem('salah_projects', JSON.stringify(projects));
+  saveProjects: async (projects: any[]) => {
+    // Since we want to keep it simple for now, we'll overwrite/sync. 
+    // A more robust way would be individual UPSERTs.
+    const { error } = await supabase.from('projects').delete({}).then(() => {
+      return supabase.from('projects').insert(projects);
+    });
+    if (error) console.error('Error saving projects:', error);
   },
-  getProducts: () => {
-    if (typeof window === 'undefined') return DEFAULT_PRODUCTS;
-    const data = localStorage.getItem('salah_products');
-    return data ? JSON.parse(data) : DEFAULT_PRODUCTS;
+  getProducts: async () => {
+    const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error fetching products:', error);
+      return [];
+    }
+    return data || [];
   },
-  saveProducts: (products: any[]) => {
-    localStorage.setItem('salah_products', JSON.stringify(products));
+  saveProducts: async (products: any[]) => {
+    const { error } = await supabase.from('products').delete({}).then(() => {
+      return supabase.from('products').insert(products);
+    });
+    if (error) console.error('Error saving products:', error);
   },
-  getSettings: () => {
-    if (typeof window === 'undefined') return {
-      github: 'https://github.com/Salahsayid2023',
-      facebook: 'https://www.facebook.com/SALAH05AI',
-      linkedin: 'https://www.linkedin.com/in/salah-sayid-2692283a0/',
-      whatsapp: 'https://wa.me/201229102164',
-      siteName: 'SALAH05AI',
-      footerText: '© 2026 All rights reserved. Built for the future.'
-    };
-    const data = localStorage.getItem('salah_settings');
-    return data ? JSON.parse(data) : {
-      github: 'https://github.com/Salahsayid2023',
-      facebook: 'https://www.facebook.com/SALAH05AI',
-      linkedin: 'https://www.linkedin.com/in/salah-sayid-2692283a0/',
-      whatsapp: 'https://wa.me/201229102164',
-      siteName: 'SALAH05AI',
-      footerText: '© 2026 All rights reserved. Built for the future.'
-    };
+  getSettings: async () => {
+    const { data, error } = await supabase.from('settings').select('*').single();
+    if (error || !data) {
+      return {
+        github: 'https://github.com/Salahsayid2023',
+        facebook: 'https://www.facebook.com/SALAH05AI',
+        linkedin: 'https://www.linkedin.com/in/salah-sayid-2692283a0/',
+        whatsapp: 'https://wa.me/201229102164',
+        siteName: 'SALAH05AI',
+        footerText: '© 2026 All rights reserved. Built for the future.'
+      };
+    }
+    return data;
   },
-  saveSettings: (settings: any) => {
-    localStorage.setItem('salah_settings', JSON.stringify(settings));
+  saveSettings: async (settings: any) => {
+    const { error } = await supabase.from('settings').upsert({ id: 1, ...settings });
+    if (error) console.error('Error saving settings:', error);
   }
 };
