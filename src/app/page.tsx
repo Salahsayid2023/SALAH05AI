@@ -47,7 +47,7 @@ export default function Home() {
     }
   };
 
-  const t = content[lang];
+  const t = (content as any)[lang];
 
   return (
     <main className={cn("relative min-h-screen w-full overflow-x-hidden bg-[#0B0B0B] text-white transition-all duration-500", lang === 'ar' ? "font-cairo" : "font-sans")} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
