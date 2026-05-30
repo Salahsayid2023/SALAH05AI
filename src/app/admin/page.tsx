@@ -42,10 +42,14 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    loadData();
-    if (activeTab === 'settings') {
-      setSettings(db.getSettings());
-    }
+    const initData = async () => {
+      await loadData();
+      if (activeTab === 'settings') {
+        const settingsData = await db.getSettings();
+        setSettings(settingsData);
+      }
+    };
+    initData();
   }, [activeTab]);
   const handleSaveSettings = () => {
     db.saveSettings(settings);
@@ -63,7 +67,7 @@ export default function AdminDashboard() {
     setIsModalOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     let updatedItems = [...items];
     
     const finalItem = { ...currentItem } as any;
@@ -78,9 +82,9 @@ export default function AdminDashboard() {
     }
 
     if (activeTab === 'projects') {
-      db.saveProjects(updatedItems);
+      await db.saveProjects(updatedItems);
     } else {
-      db.saveProducts(updatedItems);
+      await db.saveProducts(updatedItems);
     }
     
     setItems(updatedItems);
