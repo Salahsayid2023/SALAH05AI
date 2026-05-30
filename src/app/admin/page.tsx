@@ -66,8 +66,8 @@ export default function AdminDashboard() {
   const handleSave = () => {
     let updatedItems = [...items];
     
-    // Handle features string to array for products
-    const finalItem = { ...currentItem };
+    // Use 'any' for finalItem to avoid TypeScript type conflicts between string (form) and string[] (database)
+    const finalItem: any = { ...currentItem };
     if (activeTab === 'store' && typeof currentItem.features === 'string') {
       finalItem.features = currentItem.features.split(',').map((f: string) => f.trim());
     }
