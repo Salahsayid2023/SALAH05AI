@@ -19,11 +19,7 @@ export default function Home() {
   const [projects, setProjects] = useState(PROJECTS);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      const data = await db.getProjects();
-      setProjects(data);
-    };
-    fetchProjects();
+    setProjects(PROJECTS);
   }, []);
 
   const content = {
