@@ -10,11 +10,7 @@ export default function DigitalStore() {
   const [products, setProducts] = useState<any[]>([]);
 
   React.useEffect(() => {
-    const fetchProducts = async () => {
-      const data = await db.getProducts();
-      setProducts(data);
-    };
-    fetchProducts();
+    setProducts(STORE_PRODUCTS);
   }, []);
 
   return (
