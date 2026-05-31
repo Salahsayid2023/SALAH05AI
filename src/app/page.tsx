@@ -19,7 +19,15 @@ export default function Home() {
   const [projects, setProjects] = useState(PROJECTS);
 
   useEffect(() => {
-    setProjects(PROJECTS);
+    const loadProjects = async () => {
+      const data = await db.getProjects();
+      if (data && data.length > 0) {
+        setProjects(data);
+      } else {
+        setProjects(PROJECTS);
+      }
+    };
+    loadProjects();
   }, []);
 
   const content = {

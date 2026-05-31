@@ -1,44 +1,81 @@
 "use client";
 
-import React from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://faatuljctwkrvzyphx.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhYXR1bGpjdHdza3J2enlqcGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzQ5NzEsImV4cCI6MjA5NTcxMDk3MX0.PrLeasAhK_zIv1igV-AsjxrHMLD3i-pkpwIlubdt2PA';
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const db = {
-  getProjects: () => {
-    if (typeof window === 'undefined') return [];
-    const data = localStorage.getItem('salah_projects');
-    return data ? JSON.parse(data) : [];
+  getProjects: async () => {
+    try {
+      const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.error('DB Error (getProjects):', e);
+      return [];
+    }
   },
-  saveProjects: (projects: any[]) => {
-    localStorage.setItem('salah_projects', JSON.stringify(projects));
+  saveProjects: async (projects: any[]) => {
+    try {
+      // Delete all existing projects and re-insert to keep it simple and consistent with the Admin UI
+      await supabase.from('projects').delete({ count: 'full' });
+      const { error } = await supabase.from('projects').insert(projects);
+      if (error) throw error;
+      return true;
+    } catch (e) {
+      console.error('DB Error (saveProjects):', e);
+      return false;
+    }
   },
-  getProducts: () => {
-    if (typeof window === 'undefined') return [];
-    const data = localStorage.getItem('salah_products');
-    return data ? JSON.parse(data) : [];
+  getProducts: async () => {
+    try {
+      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.error('DB Error (getProducts):', e);
+      return [];
+    }
   },
-  saveProducts: (products: any[]) => {
-    localStorage.setItem('salah_products', JSON.stringify(products));
+  saveProducts: async (products: any[]) => {
+    try {
+      await supabase.from('products').delete({ count: 'full' });
+      const { error } = await supabase.from('products').insert(products);
+      if (error) throw error;
+      return true;
+    } catch (e) {
+      console.error('DB Error (saveProducts):', e);
+      return false;
+    }
   },
-  getSettings: () => {
-    if (typeof window === 'undefined') return {
-      github: 'https://github.com/Salahsayid2023',
-      facebook: 'https://www.facebook.com/SALAH05AI',
-      linkedin: 'https://www.linkedin.com/in/salah-sayid-2692283a0/',
-      whatsapp: 'https://wa.me/201229102164',
-      siteName: 'SALAH05AI',
-      footerText: '© 2026 All rights reserved. Built for the future.'
-    };
-    const data = localStorage.getItem('salah_settings');
-    return data ? JSON.parse(data) : {
-      github: 'https://github.com/Salahsayid2023',
-      facebook: 'https://www.facebook.com/SALAH05AI',
-      linkedin: 'https://www.linkedin.com/in/salah-sayid-2692283a0/',
-      whatsapp: 'https://wa.me/201229102164',
-      siteName: 'SALAH05AI',
-      footerText: '© 2026 All rights reserved. Built for the future.'
-    };
+  getSettings: async () => {
+    try {
+      const { data, error } = await supabase.from('settings').select('*').single();
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      console.error('DB Error (getSettings):', e);
+      return {
+        github: 'https://github.com/Salahsayid2023',
+        facebook: 'https://www.facebook.com/SALAH05AI',
+        linkedin: 'https://www.linkedin.com/in/salah-sayid-2692283a0/',
+        whatsapp: 'https://wa.me/201229102164',
+        siteName: 'SALAH05AI',
+        footerText: '© 2026 All rights reserved. Built for the future.'
+      };
+    }
   },
-  saveSettings: (settings: any) => {
-    localStorage.setItem('salah_settings', JSON.stringify(settings));
+  saveSettings: async (settings: any) => {
+    try {
+      const { error } = await supabase.from('settings').upsert({ id: 1, ...settings });
+      if (error) throw error;
+      return true;
+    } catch (e) {
+      console.error('DB Error (saveSettings):', e);
+      return false;
+    }
   }
 };
