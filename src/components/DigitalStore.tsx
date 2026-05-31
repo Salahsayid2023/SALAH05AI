@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Download, ExternalLink, X, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { db } from '@/lib/db';
+import { STORE_PRODUCTS } from '@/data/store';
 
 export default function DigitalStore() {
   const [products, setProducts] = useState<any[]>([]);
